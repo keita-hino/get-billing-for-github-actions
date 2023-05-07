@@ -1,105 +1,77 @@
-<p align="center">
-  <a href="https://github.com/actions/typescript-action/actions"><img alt="typescript-action status" src="https://github.com/actions/typescript-action/workflows/build-test/badge.svg"></a>
-</p>
+# Get Billing for GitHub Actions
 
-# Create a JavaScript Action using TypeScript
+This [JavaScript GitHub Action](https://docs.github.com/en/actions/creating-actions/about-custom-actions#javascript-actions) gets the billing for the current month's GitHub Actions.
 
-Use this template to bootstrap the creation of a TypeScript action.:rocket:
+<img width="669" alt="image" src="https://user-images.githubusercontent.com/15973671/236662336-f1d2b2a2-7188-4c9d-987c-72ee062f67c1.png">
 
-This template includes compilation support, tests, a validation workflow, publishing, and versioning guidance.  
+In this example, the Slack notification section is implemented using the [Slack Notify - GitHub Action](https://github.com/rtCamp/action-slack-notify).
 
-If you are new, there's also a simpler introduction.  See the [Hello World JavaScript Action](https://github.com/actions/hello-world-javascript-action)
+## Usage
+1. Create a workflow file  
+Please add to an existing workflow file with reference to the following.  
 
-## Create an action from this template
+    ```yml
+    name: Notify the billing of GitHub Actions for the current month to Slack
+    on:
+      schedule:
+        # ref: https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#schedule
+        - cron: '0 9 * * 1'
 
-Click the `Use this Template` and provide the new repo details for your action
+    jobs:
+      check-github-actions-usage:
+        runs-on: ubuntu-latest
+        steps:
+          - name: Checkout
+            uses: actions/checkout@v3
+          - uses: actions/setup-node@v2
+            with:
+              node-version: 18
+          - name: Get billing for GitHub Actions
+            id: get-billing-for-github-actions
+            uses: keita-hino/get-billing-for-github-actions@get-usage-of-github-actions
+            with:
+              # For organization accounts, set the `org` parameter.
+              account-type: user
+              github-token: ${{ secrets.PAT_ACCESS_TOKEN }}
+          - name: Slack Notification
+            uses: rtCamp/action-slack-notify@v2
+            env:
+              SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+              SLACK_TITLE: Usage of GitHub Actions for the current month
+              MSG_MINIMAL: true
+              SLACK_MESSAGE: > 
+                The usage limit of GitHub Actions for the current plan is *${{steps.get-billing-for-github-actions.outputs.included-minutes}}* minutes.
+                The usage for this month is *${{steps.get-billing-for-github-actions.outputs.total-minutes-used}}* minutes, and there are *${{steps.get-billing-for-github-actions.outputs.usable-minutes}}* minutes remaining.
+                The next reset day is in *${{steps.get-billing-for-github-actions.outputs.days-left-in-billing-cycle}}* days.
+    ```
 
-## Code in Main
+2. Create a PAT  
+  To use this workflow, you will need to create a [Personal Access Token (PAT)](https://github.com/settings/tokens?type=beta) with the necessary permissions.  
+    - For **User accounts**, grant the `plan` permissions to your PAT.  
+      <img width="814" alt="スクリーンショット 2023-05-07 14 52 36" src="https://user-images.githubusercontent.com/15973671/236660293-6cdd275e-c0ec-455b-aac9-76554b36829b.png">
+    - For **Organization accounts**, grant the `Organization administration` permissions to your PAT.    
+      <img width="797" alt="スクリーンショット 2023-05-07 14 52 47" src="https://user-images.githubusercontent.com/15973671/236660298-9882b616-5094-4ead-899f-d967ea8fe3e2.png">
+3. Set the created PAT as a secret  
+Please set the created PAT as a secret named `ACCESS_TOKEN`.
+https://docs.github.com/en/actions/security-guides/encrypted-secrets#creating-encrypted-secrets-for-a-repository
 
-> First, you'll need to have a reasonably modern version of `node` handy. This won't work with versions older than 9, for instance.
+4. Set the created SLACK_WEBHOOK as a secret 
+Please refer to the following instructions to set up SLACK_WEBHOOK as a secret.
+https://github.com/rtCamp/action-slack-notify#usage
 
-Install the dependencies  
-```bash
-$ npm install
-```
+## Inputs
+| Name | Description |
+|------|-------------|
+| account-type | `user` or `org`. The default is `user`. |
+| github-token | Personal Access Token (PAT) |
 
-Build the typescript and package it for distribution
-```bash
-$ npm run build && npm run package
-```
+## Outputs
+| Name | Description |
+|------|-------------|
+| included-minutes | The amount of free GitHub Actions minutes available |
+| total-minutes-used | EnvThe sum of the free and paid GitHub Actions minutes used |
+| usable-minutes | The value obtained by subtracting total-minutes-used from included-minutes |
+| days-left-in-billing-cycle | Numbers of days left in billing cycle. |
 
-Run the tests :heavy_check_mark:  
-```bash
-$ npm test
-
- PASS  ./index.test.js
-  ✓ throws invalid number (3ms)
-  ✓ wait 500 ms (504ms)
-  ✓ test runs (95ms)
-
-...
-```
-
-## Change action.yml
-
-The action.yml defines the inputs and output for your action.
-
-Update the action.yml with your name, description, inputs and outputs for your action.
-
-See the [documentation](https://help.github.com/en/articles/metadata-syntax-for-github-actions)
-
-## Change the Code
-
-Most toolkit and CI/CD operations involve async operations so the action is run in an async function.
-
-```javascript
-import * as core from '@actions/core';
-...
-
-async function run() {
-  try { 
-      ...
-  } 
-  catch (error) {
-    core.setFailed(error.message);
-  }
-}
-
-run()
-```
-
-See the [toolkit documentation](https://github.com/actions/toolkit/blob/master/README.md#packages) for the various packages.
-
-## Publish to a distribution branch
-
-Actions are run from GitHub repos so we will checkin the packed dist folder. 
-
-Then run [ncc](https://github.com/zeit/ncc) and push the results:
-```bash
-$ npm run package
-$ git add dist
-$ git commit -a -m "prod dependencies"
-$ git push origin releases/v1
-```
-
-Note: We recommend using the `--license` option for ncc, which will create a license file for all of the production node modules used in your project.
-
-Your action is now published! :rocket: 
-
-See the [versioning documentation](https://github.com/actions/toolkit/blob/master/docs/action-versioning.md)
-
-## Validate
-
-You can now validate the action by referencing `./` in a workflow in your repo (see [test.yml](.github/workflows/test.yml))
-
-```yaml
-uses: ./
-with:
-  milliseconds: 1000
-```
-
-See the [actions tab](https://github.com/actions/typescript-action/actions) for runs of this action! :rocket:
-
-## Usage:
-
-After testing you can [create a v1 tag](https://github.com/actions/toolkit/blob/master/docs/action-versioning.md) to reference the stable and latest V1 action
+## License
+All scripts in this project are released under the MIT License.

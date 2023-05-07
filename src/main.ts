@@ -1,16 +1,39 @@
+import {getOctokit, context} from '@actions/github'
 import * as core from '@actions/core'
-import {wait} from './wait'
+import {getBillingForUser} from './user/getBillingForUser'
+import {getBillingForOrg} from './org/getBillingForOrg'
 
 async function run(): Promise<void> {
   try {
-    const ms: string = core.getInput('milliseconds')
-    core.debug(`Waiting ${ms} milliseconds ...`) // debug is only output if you set the secret `ACTIONS_STEP_DEBUG` to true
+    const accountType = core.getInput('account-type')
+    const token = core.getInput('github-token')
+    const owner = context.repo.owner
+    const octokit = token && getOctokit(token)
 
-    core.debug(new Date().toTimeString())
-    await wait(parseInt(ms, 10))
-    core.debug(new Date().toTimeString())
+    if (!token) {
+      core.setFailed('Missing github token')
+      return
+    }
 
-    core.setOutput('time', new Date().toTimeString())
+    if (!octokit) {
+      core.setFailed('No octokit client')
+      return
+    }
+
+    const {
+      includedMinutes,
+      totalMinutesUsed,
+      usableMinutes,
+      daysLeftInBillingCycle
+    } =
+      accountType === 'user'
+        ? await getBillingForUser(octokit, owner)
+        : await getBillingForOrg(octokit, owner)
+
+    core.setOutput('included-minutes', includedMinutes)
+    core.setOutput('total-minutes-used', totalMinutesUsed)
+    core.setOutput('usable-minutes', usableMinutes)
+    core.setOutput('days-left-in-billing-cycle', daysLeftInBillingCycle)
   } catch (error) {
     if (error instanceof Error) core.setFailed(error.message)
   }

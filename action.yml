@@ -1,11 +1,23 @@
-name: 'Your name here'
-description: 'Provide a description here'
-author: 'Your name or organization here'
+name: 'Get billing for Github Actions'
+description: 'Get billing for Github Actions'
+author: 'keita-hino'
 inputs:
-  milliseconds: # change this
+  account-type:
+    description: 'user or org'
+    required: false
+    default: 'user'
+  github-token:
+    description: "The GitHub token for your repo"
     required: true
-    description: 'input description here'
-    default: 'default value if applicable'
+outputs:
+  included-minutes:
+    description: "The amount of free GitHub Actions minutes available"
+  total-minutes-used:
+    description: "The sum of the free and paid GitHub Actions minutes used"
+  usable-minutes:
+    description: "The value obtained by subtracting total-minutes-used from included-minutes"
+  days-left-in-billing-cycle:
+    description: "Numbers of days left in billing cycle"
 runs:
   using: 'node16'
   main: 'dist/index.js'

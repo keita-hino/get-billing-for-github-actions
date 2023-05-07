@@ -1,6 +1,9 @@
 name: 'Get billing for Github Actions'
 description: 'Get billing for Github Actions'
 author: 'keita-hino'
+branding:
+  icon: check
+  color: green
 inputs:
   account-type:
     description: 'user or org'

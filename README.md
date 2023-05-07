@@ -69,7 +69,7 @@ https://github.com/rtCamp/action-slack-notify#usage
 | Name | Description |
 |------|-------------|
 | included-minutes | The amount of free GitHub Actions minutes available |
-| total-minutes-used | EnvThe sum of the free and paid GitHub Actions minutes used |
+| total-minutes-used | The sum of the free and paid GitHub Actions minutes used |
 | usable-minutes | The value obtained by subtracting total-minutes-used from included-minutes |
 | days-left-in-billing-cycle | Numbers of days left in billing cycle |
 

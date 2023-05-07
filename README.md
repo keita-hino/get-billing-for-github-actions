@@ -52,11 +52,11 @@ Please add to an existing workflow file with reference to the following.
     - For **Organization accounts**, grant the `Organization administration` permissions to your PAT.    
       <img width="797" alt="スクリーンショット 2023-05-07 14 52 47" src="https://user-images.githubusercontent.com/15973671/236660298-9882b616-5094-4ead-899f-d967ea8fe3e2.png">
 3. Set the created PAT as a secret  
-Please set the created PAT as a secret named `ACCESS_TOKEN`.
+Please set the created PAT as a secret named `ACCESS_TOKEN`.  
 https://docs.github.com/en/actions/security-guides/encrypted-secrets#creating-encrypted-secrets-for-a-repository
 
 4. Set the created SLACK_WEBHOOK as a secret 
-Please refer to the following instructions to set up SLACK_WEBHOOK as a secret.
+Please refer to the following instructions to set up SLACK_WEBHOOK as a secret.  
 https://github.com/rtCamp/action-slack-notify#usage
 
 ## Inputs
@@ -71,7 +71,7 @@ https://github.com/rtCamp/action-slack-notify#usage
 | included-minutes | The amount of free GitHub Actions minutes available |
 | total-minutes-used | EnvThe sum of the free and paid GitHub Actions minutes used |
 | usable-minutes | The value obtained by subtracting total-minutes-used from included-minutes |
-| days-left-in-billing-cycle | Numbers of days left in billing cycle. |
+| days-left-in-billing-cycle | Numbers of days left in billing cycle |
 
 ## License
 All scripts in this project are released under the MIT License.

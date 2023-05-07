@@ -28,7 +28,7 @@ Please add to an existing workflow file with reference to the following.
               node-version: 18
           - name: Get billing for GitHub Actions
             id: get-billing-for-github-actions
-            uses: keita-hino/get-billing-for-github-actions@get-usage-of-github-actions
+            uses: keita-hino/get-billing-for-github-actions@v0.1.1
             with:
               # For organization accounts, set the `org` parameter.
               account-type: user

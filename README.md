@@ -23,7 +23,7 @@ Please add to an existing workflow file with reference to the following.
         steps:
           - name: Checkout
             uses: actions/checkout@v3
-          - uses: actions/setup-node@v2
+          - uses: actions/setup-node@v3
             with:
               node-version: 18
           - name: Get billing for GitHub Actions
